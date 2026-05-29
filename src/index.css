@@ -7,6 +7,14 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  overscroll-behavior-y: contain;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: #0c152b; /* Smooth dark background standard */

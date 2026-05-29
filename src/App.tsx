@@ -294,12 +294,12 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen transition-all duration-300 select-none ${
+    <div className={`h-full w-full overflow-hidden transition-all duration-300 select-none ${
       theme === 'dark' ? 'bg-[#060a17] text-white' : 'bg-[#f0f4f9] text-slate-800'
     } flex flex-col items-center justify-center md:py-6`}>
 
       {/* PRIMARY RESPONSIBLE CONTAINER */}
-      <div className={`relative flex flex-col w-full max-w-lg md:rounded-3xl md:border md:shadow-2xl overflow-hidden h-screen md:h-[840px] transition-all duration-300 ${
+      <div className={`relative flex flex-col w-full max-w-lg md:rounded-3xl md:border md:shadow-2xl overflow-hidden h-full md:h-[840px] transition-all duration-300 ${
         theme === 'dark' ? 'bg-[#0b1329] md:border-slate-850' : 'bg-[#f8fafc] md:border-slate-200'
       }`}>
         
@@ -377,7 +377,7 @@ export default function App() {
           </header>
 
           {/* ACTIVE SCREEN CONTENT WORKSPACE (SCROLLABLE CONTAINER) */}
-          <main className="flex-1 overflow-y-auto relative scrollbar-thin">
+          <main className="flex-1 overflow-y-auto relative scrollbar-thin overscroll-contain">
             {!currentUser ? (
               <AuthScreen
                 language={language}
