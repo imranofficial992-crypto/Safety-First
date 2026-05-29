@@ -19,7 +19,8 @@ import {
   User,
   Settings,
   PhoneCall,
-  Globe
+  Globe,
+  LogOut
 } from 'lucide-react';
 import { Language, ScreenId } from '../types';
 import { EN_TRANSLATIONS, BN_TRANSLATIONS } from '../data/translations';
@@ -32,6 +33,8 @@ interface SidebarProps {
   language: Language;
   setLanguage: (lang: Language) => void;
   theme: 'light' | 'dark';
+  currentUser: { username: string; fullName: string; bloodGroup: string; loginTime: number } | null;
+  onLogout: () => void;
 }
 
 export default function Sidebar({
@@ -41,7 +44,9 @@ export default function Sidebar({
   setScreen,
   language,
   setLanguage,
-  theme
+  theme,
+  currentUser,
+  onLogout
 }: SidebarProps) {
   const t = language === 'en' ? EN_TRANSLATIONS : BN_TRANSLATIONS;
 
@@ -109,12 +114,25 @@ export default function Sidebar({
               <div className={`mt-4 p-2.5 rounded-xl flex items-center gap-3 ${
                 theme === 'dark' ? 'bg-[#1a2b53]' : 'bg-[#f1f5f9]'
               }`}>
-                <div className="w-9 h-9 rounded-full bg-slate-300 flex items-center justify-center overflow-hidden border border-rose-500/30">
-                  <User size={18} className="text-slate-600" />
+                <div className="w-9 h-9 rounded-full bg-rose-500/15 flex items-center justify-center overflow-hidden border border-rose-500/30">
+                  <span className="font-bold text-xs text-rose-500">
+                    {currentUser?.fullName?.slice(0, 2).toUpperCase() || "US"}
+                  </span>
                 </div>
-                <div className="truncate">
-                  <p className="text-[11px] font-medium leading-none opacity-50">Authorized User</p>
-                  <p className="text-xs font-semibold truncate mt-1">imranofficial992@gmail.com</p>
+                <div className="truncate flex-1">
+                  <div className="flex items-center gap-1.5 justify-between">
+                    <p className="text-[11px] font-medium opacity-50">
+                      {language === 'en' ? 'Authorized Session' : 'অনুমোদিত সেশন'}
+                    </p>
+                    {currentUser?.bloodGroup && (
+                      <span className="text-[8px] font-extrabold px-1.5 py-0.5 bg-red-500/10 text-red-500 rounded font-mono">
+                        {currentUser.bloodGroup}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs font-semibold truncate mt-0.5" title={currentUser?.fullName || currentUser?.username}>
+                    {currentUser?.fullName || currentUser?.username || 'imranofficial992@gmail.com'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -154,6 +172,20 @@ export default function Sidebar({
 
             {/* Drawer Bottom Options */}
             <div className={`p-4 border-t flex flex-col gap-3 ${theme === 'dark' ? 'border-slate-850 bg-[#0f1b3b]' : 'border-slate-100 bg-[#f8fafc]'}`}>
+              {/* Logout Button */}
+              {currentUser && (
+                <button
+                  onClick={() => {
+                    onLogout();
+                    onClose();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-red-650/10 dark:bg-red-500/10 border border-red-500/30 text-red-550 dark:text-red-400 hover:bg-red-600 hover:text-white dark:hover:bg-red-600 dark:hover:text-white transition-all text-xs font-black cursor-pointer uppercase tracking-wider"
+                >
+                  <LogOut size={13} />
+                  {language === 'en' ? 'Logout Session' : 'লগআউট ক্রিয়াকলাপ'}
+                </button>
+              )}
+
               {/* Language Fast Switch */}
               <div className="flex items-center justify-between px-2">
                 <span className="text-xs opacity-60 flex items-center gap-1.5 font-medium">

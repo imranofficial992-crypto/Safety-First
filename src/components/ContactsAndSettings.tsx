@@ -25,8 +25,6 @@ interface ContactsAndSettingsProps {
   setLanguage: (lang: Language) => void;
   theme: 'light' | 'dark';
   setTheme: (t: 'light' | 'dark') => void;
-  showSimulatorFrame: boolean;
-  setShowSimulatorFrame: (show: boolean) => void;
   screenId: 'contacts' | 'settings';
 }
 
@@ -35,8 +33,6 @@ export default function ContactsAndSettings({
   setLanguage,
   theme,
   setTheme,
-  showSimulatorFrame,
-  setShowSimulatorFrame,
   screenId
 }: ContactsAndSettingsProps) {
   const t = language === 'en' ? EN_TRANSLATIONS : BN_TRANSLATIONS;
@@ -86,7 +82,7 @@ export default function ContactsAndSettings({
           </div>
         )}
 
-        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-850 text-white shadow-lg overflow-hidden">
+        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-indigo-600 to-indigo-800 text-white shadow-lg overflow-hidden">
           <span className="text-[10px] tracking-widest font-mono uppercase bg-white/20 px-2.5 py-0.5 rounded-full font-bold">
             {language === 'en' ? "GOVERNMENT HOTLINES" : "সরকারি জরুরি যোগাযোগ"}
           </span>
@@ -128,7 +124,7 @@ export default function ContactsAndSettings({
               <button
                 onClick={() => handleCall(contact.number)}
                 id={`btn-call-hotline-${contact.number}`}
-                className="p-3 bg-indigo-650 hover:bg-indigo-750 text-white rounded-xl shadow shadow-indigo-650/15 cursor-pointer"
+                className="p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow shadow-indigo-600/15 cursor-pointer"
               >
                 <PhoneCall size={14} />
               </button>
@@ -141,7 +137,7 @@ export default function ContactsAndSettings({
 
   return (
     <div className="space-y-5 p-4 pb-12 font-sans">
-      <div className="relative p-5 rounded-2xl bg-gradient-to-br from-slate-750 to-slate-900 text-white shadow-lg overflow-hidden border border-slate-700/30">
+      <div className="relative p-5 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-900 text-white shadow-lg overflow-hidden border border-slate-700/30">
         <span className="text-[10px] tracking-widest font-mono uppercase bg-white/15 px-2.5 py-0.5 rounded-full">
           PREFERENCES
         </span>
@@ -216,29 +212,6 @@ export default function ContactsAndSettings({
             <span className="truncate">{t.darkMode}</span>
           </button>
         </div>
-      </div>
-
-      {/* Simulator borders configuration representing responsive layout */}
-      <div className={`p-4 rounded-xl border space-y-3.5 ${
-        theme === 'dark' ? 'bg-[#0f1b3b] border-slate-850' : 'bg-white border-slate-100'
-      }`}>
-        <h4 className="text-xs font-bold text-slate-800 dark:text-slate-350 uppercase flex items-center gap-1.5">
-          <Smartphone size={14} /> Screen Simulator Configuration
-        </h4>
-        <p className="text-xs opacity-75 leading-normal">
-          Toggle between standard mobile smartphone frame containment and clean responsive layout view. Great for desktop monitor previews.
-        </p>
-        <button
-          onClick={() => setShowSimulatorFrame(!showSimulatorFrame)}
-          id="btn-toggle-simulator"
-          className={`w-full py-2.5 text-xs font-bold rounded-xl border transition-colors ${
-            showSimulatorFrame
-              ? 'bg-emerald-600 text-white border-emerald-600'
-              : 'bg-transparent border-slate-250 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900'
-          }`}
-        >
-          {showSimulatorFrame ? "Simulator Frame: ACTIVE (Smartphone)" : "Simulator Frame: HIDDEN (Responsive Wide)"}
-        </button>
       </div>
 
       {/* Legal & Authors credits */}

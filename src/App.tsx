@@ -17,7 +17,8 @@ import {
   MessageCircle,
   Eye,
   EyeOff,
-  Sparkles
+  Sparkles,
+  Lock
 } from 'lucide-react';
 import { Language, ScreenId, AmbulanceProvider, BloodDonor, ExpenseItem, EmergencyRequest } from './types';
 import {
@@ -36,27 +37,57 @@ import BlogModules from './components/BlogModules';
 import BloodDonateModule from './components/BloodDonateModule';
 import ExpenseTrackerModule from './components/ExpenseTrackerModule';
 import ContactsAndSettings from './components/ContactsAndSettings';
+import AuthScreen from './components/AuthScreen';
 
 export default function App() {
+  // User Authentication State (24-hour expiration check)
+  const [currentUser, setCurrentUser] = useState<{ username: string; fullName: string; bloodGroup: string; loginTime: number } | null>(() => {
+    try {
+      const saved = localStorage.getItem('safety_logged_in_user');
+      if (saved) {
+        const userObj = JSON.parse(saved);
+        if (userObj && typeof userObj === 'object') {
+          const loginTime = userObj.loginTime || 0;
+          // 24 hours = 86,400,000 milliseconds
+          if (Date.now() - loginTime > 86400000) {
+            localStorage.removeItem('safety_logged_in_user');
+            return null;
+          }
+          return userObj;
+        }
+      }
+    } catch (e) {
+      console.warn("Failed to load user session cleanly:", e);
+    }
+    return null;
+  });
+
   // 1. Core State Managers
   const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('safety_lang');
-    return (saved === 'bn' || saved === 'en') ? saved : 'en';
+    try {
+      const saved = localStorage.getItem('safety_lang');
+      return (saved === 'bn' || saved === 'en') ? saved : 'en';
+    } catch (e) {
+      return 'en';
+    }
   });
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    const saved = localStorage.getItem('safety_theme');
-    return saved === 'dark' ? 'dark' : 'light';
+    try {
+      const saved = localStorage.getItem('safety_theme');
+      return saved === 'dark' ? 'dark' : 'light';
+    } catch (e) {
+      return 'light';
+    }
   });
 
   const [currentScreen, setCurrentScreen] = useState<ScreenId>(() => {
-    const saved = localStorage.getItem('safety_screen');
-    return (saved as ScreenId) || 'home';
-  });
-
-  const [showSimulatorFrame, setShowSimulatorFrame] = useState<boolean>(() => {
-    const saved = localStorage.getItem('safety_simulator');
-    return saved !== 'false'; // Default to active frame
+    try {
+      const saved = localStorage.getItem('safety_screen');
+      return (saved as ScreenId) || 'home';
+    } catch (e) {
+      return 'home';
+    }
   });
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -64,57 +95,115 @@ export default function App() {
 
   // 2. Data Lists Persistent States
   const [ambulanceProviders, setAmbulanceProviders] = useState<AmbulanceProvider[]>(() => {
-    const saved = localStorage.getItem('safety_ambulances');
-    return saved ? JSON.parse(saved) : INITIAL_AMBULANCE_PROVIDERS;
+    try {
+      const saved = localStorage.getItem('safety_ambulances');
+      return saved ? JSON.parse(saved) : INITIAL_AMBULANCE_PROVIDERS;
+    } catch (e) {
+      return INITIAL_AMBULANCE_PROVIDERS;
+    }
   });
 
   const [bloodDonors, setBloodDonors] = useState<BloodDonor[]>(() => {
-    const saved = localStorage.getItem('safety_donors');
-    return saved ? JSON.parse(saved) : INITIAL_BLOOD_DONORS;
+    try {
+      const saved = localStorage.getItem('safety_donors');
+      return saved ? JSON.parse(saved) : INITIAL_BLOOD_DONORS;
+    } catch (e) {
+      return INITIAL_BLOOD_DONORS;
+    }
   });
 
   const [emergencyRequests, setEmergencyRequests] = useState<EmergencyRequest[]>(() => {
-    const saved = localStorage.getItem('safety_blood_reqs');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('safety_blood_reqs');
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
   });
 
   const [expenses, setExpenses] = useState<ExpenseItem[]>(() => {
-    const saved = localStorage.getItem('safety_expenses');
-    return saved ? JSON.parse(saved) : INITIAL_EXPENSES;
+    try {
+      const saved = localStorage.getItem('safety_expenses');
+      return saved ? JSON.parse(saved) : INITIAL_EXPENSES;
+    } catch (e) {
+      return INITIAL_EXPENSES;
+    }
   });
 
   // 3. Sync State back to LocalStorage
   useEffect(() => {
-    localStorage.setItem('safety_lang', language);
+    try {
+      localStorage.setItem('safety_lang', language);
+    } catch (e) {}
   }, [language]);
 
   useEffect(() => {
-    localStorage.setItem('safety_theme', theme);
+    try {
+      localStorage.setItem('safety_theme', theme);
+    } catch (e) {}
   }, [theme]);
 
   useEffect(() => {
-    localStorage.setItem('safety_screen', currentScreen);
+    try {
+      localStorage.setItem('safety_screen', currentScreen);
+    } catch (e) {}
   }, [currentScreen]);
 
   useEffect(() => {
-    localStorage.setItem('safety_simulator', showSimulatorFrame ? 'true' : 'false');
-  }, [showSimulatorFrame]);
-
-  useEffect(() => {
-    localStorage.setItem('safety_ambulances', JSON.stringify(ambulanceProviders));
+    try {
+      localStorage.setItem('safety_ambulances', JSON.stringify(ambulanceProviders));
+    } catch (e) {}
   }, [ambulanceProviders]);
 
   useEffect(() => {
-    localStorage.setItem('safety_donors', JSON.stringify(bloodDonors));
+    try {
+      localStorage.setItem('safety_donors', JSON.stringify(bloodDonors));
+    } catch (e) {}
   }, [bloodDonors]);
 
   useEffect(() => {
-    localStorage.setItem('safety_blood_reqs', JSON.stringify(emergencyRequests));
+    try {
+      localStorage.setItem('safety_blood_reqs', JSON.stringify(emergencyRequests));
+    } catch (e) {}
   }, [emergencyRequests]);
 
   useEffect(() => {
-    localStorage.setItem('safety_expenses', JSON.stringify(expenses));
+    try {
+      localStorage.setItem('safety_expenses', JSON.stringify(expenses));
+    } catch (e) {}
   }, [expenses]);
+
+  // Auth local storage sync and automatic session expiration ticker
+  useEffect(() => {
+    try {
+      if (currentUser) {
+        localStorage.setItem('safety_logged_in_user', JSON.stringify(currentUser));
+      } else {
+        localStorage.removeItem('safety_logged_in_user');
+      }
+    } catch (e) {}
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const checkSession = () => {
+      const elapsed = Date.now() - currentUser.loginTime;
+      if (elapsed > 86400000) {
+        setCurrentUser(null);
+        try {
+          localStorage.removeItem('safety_logged_in_user');
+        } catch (e) {}
+      }
+    };
+
+    // Check immediately on load/effect refresh
+    checkSession();
+
+    // Check periodically in background
+    const interval = setInterval(checkSession, 15000); // 15 seconds accuracy
+    return () => clearInterval(interval);
+  }, [currentUser]);
 
   // Dictionary Reference
   const t = language === 'en' ? EN_TRANSLATIONS : BN_TRANSLATIONS;
@@ -173,6 +262,9 @@ export default function App() {
 
   // Screen Title Solver
   const getScreenTitle = (): string => {
+    if (!currentUser) {
+      return language === 'en' ? 'Portal Security' : 'পোর্টাল অ্যাক্সেস সিকিউরিটি';
+    }
     switch (currentScreen) {
       case 'home':
         return t.appName;
@@ -202,48 +294,39 @@ export default function App() {
   };
 
   return (
-    <div className={`min-h-screen py-4 md:py-10 px-4 transition-all duration-300 select-none ${
+    <div className={`min-h-screen transition-all duration-300 select-none ${
       theme === 'dark' ? 'bg-[#060a17] text-white' : 'bg-[#f0f4f9] text-slate-800'
-    } flex flex-col items-center justify-center`}>
+    } flex flex-col items-center justify-center md:py-6`}>
 
-      {/* DEVICE FRAME CONTAINER SECTOR */}
-      <div className={`relative transition-all duration-300 w-full overflow-hidden ${
-        showSimulatorFrame
-          ? 'max-w-[420px] aspect-[9/19.5] rounded-[42px] border-[11px] border-slate-900 shadow-2xl relative bg-slate-900 ring-4 ring-rose-600/10'
-          : 'max-w-3xl rounded-3xl border border-slate-200/50 dark:border-slate-850 shadow-xl'
-      } ${
-        theme === 'dark' ? 'bg-[#0b1329]' : 'bg-[#f8fafc]'
+      {/* PRIMARY RESPONSIBLE CONTAINER */}
+      <div className={`relative flex flex-col w-full max-w-lg md:rounded-3xl md:border md:shadow-2xl overflow-hidden h-screen md:h-[840px] transition-all duration-300 ${
+        theme === 'dark' ? 'bg-[#0b1329] md:border-slate-850' : 'bg-[#f8fafc] md:border-slate-200'
       }`}>
         
-        {/* Physical Camera Notch Sensor overlay inside frame */}
-        {showSimulatorFrame && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 w-32 h-6 bg-slate-900 rounded-full z-50 flex items-center justify-between px-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-800 border border-slate-700 shrink-0" />
-            <div className="w-3.5 h-1.5 bg-slate-855 rounded-full" />
-            <span className="text-[9px] text-white/40 font-mono font-bold">19:48</span>
-          </div>
-        )}
-
         {/* Application Layout Frame */}
-        <div className={`relative flex flex-col overflow-hidden h-[740px] md:h-[810px] w-full ${
-          showSimulatorFrame ? 'pt-6' : ''
-        }`}>
+        <div className="relative flex flex-col overflow-hidden h-full w-full">
           
           {/* TOP PRIMARY BAR */}
           <header className={`p-4 border-b flex items-center justify-between z-40 transition-colors ${
             theme === 'dark' ? 'bg-[#0f1b3b] border-slate-850' : 'bg-white border-slate-100 shadow-xs'
           }`}>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => setSidebarOpen(true)}
-                id="btn-hamburger"
-                className={`p-2 rounded-xl transition-all ${
-                  theme === 'dark' ? 'hover:bg-slate-800 text-white' : 'hover:bg-slate-100 text-slate-700'
-                }`}
-                title="Sidebar trigger"
-              >
-                <Menu size={18} />
-              </button>
+              {currentUser ? (
+                <button
+                  onClick={() => setSidebarOpen(true)}
+                  id="btn-hamburger"
+                  className={`p-2 rounded-xl transition-all ${
+                    theme === 'dark' ? 'hover:bg-slate-800 text-white' : 'hover:bg-slate-100 text-slate-700'
+                  }`}
+                  title="Sidebar trigger"
+                >
+                  <Menu size={18} />
+                </button>
+              ) : (
+                <div className="p-2 bg-rose-500/10 text-rose-500 rounded-xl">
+                  <Lock size={15} className="animate-pulse" />
+                </div>
+              )}
               
               <div className="max-w-[170px]">
                 <h1 className="font-display font-black tracking-tight text-sm text-slate-800 dark:text-white truncate">
@@ -279,29 +362,38 @@ export default function App() {
               </div>
 
               {/* Red Emergency Trigger Button inside top bar */}
-              <button
-                onClick={() => {
-                  setCurrentScreen('contacts');
-                }}
-                className="w-8.5 h-8.5 bg-gradient-to-br from-red-600 to-rose-650 hover:from-red-700 text-white rounded-xl flex items-center justify-center shadow-lg shadow-rose-600/30 cursor-pointer shrink-0"
-                title="Emergency Hotlines Directory"
-              >
-                <Phone size={14} className="animate-bounce" />
-              </button>
+              {currentUser && (
+                <button
+                  onClick={() => {
+                    setCurrentScreen('contacts');
+                  }}
+                  className="w-8.5 h-8.5 bg-gradient-to-br from-red-600 to-rose-600 hover:from-red-700 text-white rounded-xl flex items-center justify-center shadow-lg shadow-rose-600/30 cursor-pointer shrink-0"
+                  title="Emergency Hotlines Directory"
+                >
+                  <Phone size={14} className="animate-bounce" />
+                </button>
+              )}
             </div>
           </header>
 
           {/* ACTIVE SCREEN CONTENT WORKSPACE (SCROLLABLE CONTAINER) */}
           <main className="flex-1 overflow-y-auto relative scrollbar-thin">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentScreen}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.18, ease: 'easeInOut' }}
-                className="pb-28" // generous bottom clearance for the WhatsApp and sticky bottom navigation bars!
-              >
+            {!currentUser ? (
+              <AuthScreen
+                language={language}
+                theme={theme}
+                onLoginSuccess={(user) => setCurrentUser({ ...user, loginTime: Date.now() })}
+              />
+            ) : (
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={currentScreen}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.18, ease: 'easeInOut' }}
+                  className="pb-28" // generous bottom clearance for the WhatsApp and sticky bottom navigation bars!
+                >
                 {currentScreen === 'home' && (
                   <Dashboard
                     language={language}
@@ -362,60 +454,63 @@ export default function App() {
                     setLanguage={setLanguage}
                     theme={theme}
                     setTheme={setTheme}
-                    showSimulatorFrame={showSimulatorFrame}
-                    setShowSimulatorFrame={setShowSimulatorFrame}
                     screenId={currentScreen}
                   />
                 )}
               </motion.div>
             </AnimatePresence>
+          )}
           </main>
 
           {/* WHATSAPP CONTACT STICKY FOOTER ROW BAR */}
-          <div className="absolute bottom-[66px] left-0 right-0 z-30 px-3.5 pb-1">
-            <a
-              href="https://wa.me/8801880492649"
-              target="_blank"
-              rel="noopener noreferrer referrer"
-              className="w-full h-[45px] bg-gradient-to-r from-emerald-550 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-sans font-extrabold text-[11px] rounded-xl flex items-center justify-between px-4 shadow-lg shadow-emerald-550/20 hover:shadow-emerald-600/30 transition-all border border-emerald-500/25 shrink-0"
-              id="sticky-whatsapp-bar"
-            >
-              <div className="flex items-center gap-2 max-w-[85%]">
-                <MessageCircle size={15} className="animate-pulse-slow shrink-0" />
-                <span className="truncate tracking-wide">{t.whatsappText}</span>
-              </div>
-              <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-mono shrink-0">
-                wa.me
-              </span>
-            </a>
-          </div>
+          {currentUser && (
+            <div className="absolute bottom-[66px] left-0 right-0 z-30 px-3.5 pb-1">
+              <a
+                href="https://wa.me/8801880492649"
+                target="_blank"
+                rel="noopener noreferrer referrer"
+                className="w-full h-[45px] bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-sans font-extrabold text-[11px] rounded-xl flex items-center justify-between px-4 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-600/30 transition-all border border-emerald-500/25 shrink-0"
+                id="sticky-whatsapp-bar"
+              >
+                <div className="flex items-center gap-2 max-w-[85%]">
+                  <MessageCircle size={15} className="animate-pulse-slow shrink-0" />
+                  <span className="truncate tracking-wide">{t.whatsappText}</span>
+                </div>
+                <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-md font-mono shrink-0">
+                  wa.me
+                </span>
+              </a>
+            </div>
+          )}
 
           {/* APP HARD BOTTOM NAVIGATION TAB BAR */}
-          <footer className={`absolute bottom-0 left-0 right-0 z-30 h-[66px] border-t px-3.5 flex items-center justify-between transition-colors ${
-            theme === 'dark' ? 'bg-[#0f1b3b] border-slate-850' : 'bg-white border-slate-100 shadow'
-          }`}>
-            {bottomNavs.map((btn) => {
-              const Icon = btn.icon;
-              const isActive = currentScreen === btn.id;
-              return (
-                <button
-                  key={btn.id}
-                  onClick={() => setCurrentScreen(btn.id)}
-                  id={`bottom-tab-${btn.id}`}
-                  className={`flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[10px] font-bold tracking-tight text-center cursor-pointer transition-all ${
-                    isActive
-                      ? 'text-rose-600 scale-103'
-                      : theme === 'dark'
-                      ? 'text-slate-450 hover:text-slate-200'
-                      : 'text-slate-500 hover:text-slate-800'
-                  }`}
-                >
-                  <Icon size={18} className={isActive ? 'stroke-[2.5px]' : 'stroke-[1.8px]'} />
-                  <span className="mt-1 font-sans">{btn.label}</span>
-                </button>
-              );
-            })}
-          </footer>
+          {currentUser && (
+            <footer className={`absolute bottom-0 left-0 right-0 z-30 h-[66px] border-t px-3.5 flex items-center justify-between transition-colors ${
+              theme === 'dark' ? 'bg-[#0f1b3b] border-slate-850' : 'bg-white border-slate-100 shadow'
+            }`}>
+              {bottomNavs.map((btn) => {
+                const Icon = btn.icon;
+                const isActive = currentScreen === btn.id;
+                return (
+                  <button
+                    key={btn.id}
+                    onClick={() => setCurrentScreen(btn.id)}
+                    id={`bottom-tab-${btn.id}`}
+                    className={`flex flex-col items-center justify-center py-1.5 px-2 rounded-xl text-[10px] font-bold tracking-tight text-center cursor-pointer transition-all ${
+                      isActive
+                        ? 'text-rose-600 scale-103'
+                        : theme === 'dark'
+                        ? 'text-slate-450 hover:text-slate-200'
+                        : 'text-slate-500 hover:text-slate-800'
+                    }`}
+                  >
+                    <Icon size={18} className={isActive ? 'stroke-[2.5px]' : 'stroke-[1.8px]'} />
+                    <span className="mt-1 font-sans">{btn.label}</span>
+                  </button>
+                );
+              })}
+            </footer>
+          )}
 
           {/* SLIDING SIDE DRAWER PANEL OVERLAY */}
           <Sidebar
@@ -426,6 +521,11 @@ export default function App() {
             language={language}
             setLanguage={setLanguage}
             theme={theme}
+            currentUser={currentUser}
+            onLogout={() => {
+              setCurrentUser(null);
+              localStorage.removeItem('safety_logged_in_user');
+            }}
           />
         </div>
       </div>

@@ -130,7 +130,7 @@ export default function ExpenseTrackerModule({
         <button
           onClick={() => setShowAddForm(true)}
           id="btn-open-accounting-entry"
-          className="w-full py-3.5 bg-rose-650 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-colors flex items-center justify-center gap-2"
+          className="w-full py-3.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2 focus:ring-2 focus:ring-rose-500"
         >
           <Plus size={15} />
           {t.addTransactionTitle}
@@ -261,7 +261,7 @@ export default function ExpenseTrackerModule({
             <button
               type="submit"
               id="btn-save-accounting-entry"
-              className="px-4 py-1.5 text-xs font-bold bg-rose-650 text-white rounded-lg hover:bg-rose-700 transition-colors"
+              className="px-4 py-1.5 text-xs font-bold bg-rose-600 text-white rounded-lg hover:bg-rose-750 transition-colors"
             >
               {t.save}
             </button>
@@ -339,8 +339,8 @@ export default function ExpenseTrackerModule({
                   <div className="flex items-center gap-2">
                     <span className={`px-2 py-0.5 rounded text-[8px] font-bold ${
                       item.type === 'income' 
-                        ? 'bg-emerald-550/10 text-emerald-500' 
-                        : 'bg-red-500/10 text-red-500'
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-450' 
+                        : 'bg-red-500/10 text-red-650'
                     }`}>
                       {item.type === 'income' ? t.income : t.expense}
                     </span>

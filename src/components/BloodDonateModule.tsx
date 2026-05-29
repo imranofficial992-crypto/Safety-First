@@ -154,7 +154,7 @@ export default function BloodDonateModule({
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-4 left-4 right-4 z-50 p-3 bg-red-650 text-white rounded-2xl shadow-xl flex items-center gap-2.5"
+            className="absolute top-4 left-4 right-4 z-50 p-3 bg-red-600 text-white rounded-2xl shadow-xl flex items-center gap-2.5"
           >
             <CheckCircle size={18} className="shrink-0 text-white" />
             <span className="text-xs font-bold leading-tight">{toastMessage}</span>
@@ -298,7 +298,7 @@ export default function BloodDonateModule({
                   <span className="text-[10px] font-mono leading-none tracking-tight">{req.contactNumber}</span>
                   <button
                     onClick={() => triggerCallSim(req.contactNumber)}
-                    className="p-1 px-2 text-[9px] font-extrabold bg-red-650 hover:bg-red-750 text-white rounded-md flex items-center gap-1 cursor-pointer"
+                    className="p-1 px-2 text-[9px] font-extrabold bg-red-600 hover:bg-red-700 text-white rounded-md flex items-center gap-1 cursor-pointer"
                   >
                     <Phone size={10} /> {t.callNow}
                   </button>
@@ -386,13 +386,13 @@ export default function BloodDonateModule({
       {/* FLOATING BECOME A DONOR FORM MODAL */}
       <AnimatePresence>
         {showDonorForm && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs z-50 rounded-3xl flex items-end justify-center">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-end justify-center">
             <motion.form
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               onSubmit={handleDonorSubmit}
-              className={`w-full max-h-[90%] overflow-y-auto rounded-t-3xl p-5 space-y-4 shadow-2xl ${
+              className={`w-full max-w-lg mx-auto max-h-[90%] overflow-y-auto rounded-t-3xl p-5 space-y-4 shadow-2xl ${
                 theme === 'dark' ? 'bg-[#0f1b3b] text-white' : 'bg-white text-slate-800'
               }`}
             >
@@ -514,13 +514,13 @@ export default function BloodDonateModule({
       {/* FLOATING REQ ALERT BROADCAST FORM MODAL */}
       <AnimatePresence>
         {showRequestForm && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs z-50 rounded-3xl flex items-end justify-center">
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-end justify-center">
             <motion.form
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               onSubmit={handleRequestSubmit}
-              className={`w-full max-h-[90%] overflow-y-auto rounded-t-3xl p-5 space-y-4 shadow-2xl ${
+              className={`w-full max-w-lg mx-auto max-h-[90%] overflow-y-auto rounded-t-3xl p-5 space-y-4 shadow-2xl ${
                 theme === 'dark' ? 'bg-[#0f1b3b] text-white' : 'bg-white text-slate-800'
               }`}
             >
@@ -599,7 +599,7 @@ export default function BloodDonateModule({
               <button
                 type="submit"
                 id="btn-broadcast-blood"
-                className="w-full py-3 bg-red-650 text-white font-extrabold text-xs tracking-wide rounded-xl shadow-lg transition-colors flex items-center justify-center gap-1.5"
+                className="w-full py-3 bg-red-600 text-white font-extrabold text-xs tracking-wide rounded-xl shadow-lg transition-colors flex items-center justify-center gap-1.5"
               >
                 <Droplet size={14} />
                 {t.submitBloodReq}
@@ -611,24 +611,26 @@ export default function BloodDonateModule({
 
       {/* PHONE LINE DIALER SIMULATOR MAP */}
       {dialingPhone && (
-        <div className="absolute inset-0 bg-black/85 backdrop-blur-md z-50 rounded-3xl flex flex-col justify-center items-center p-6 text-center text-white">
-          <div className="w-20 h-20 rounded-full bg-red-600 flex items-center justify-center animate-bounce-slow shadow-xl mb-6">
-            <Phone size={28} className="text-white" />
-          </div>
-          <span className="text-[10px] font-mono tracking-widest text-[#ef4444] uppercase">
-            {language === 'en' ? "Establishing Blood Query Line..." : "রক্তদাতার সাথে যোগাযোগ করা হচ্ছে..."}
-          </span>
-          <h3 className="text-3xl font-extrabold tracking-wide mt-2">{dialingPhone}</h3>
-          <p className="text-xs opacity-60 mt-3 max-w-[200px]">
-            {language === 'en' ? "Simulating connection. Be respectful when requesting blood units." : "কলিং সিমুলেটর চলছে। রক্তদানের ব্যাপারে বিনীতভাবে অনুরোধ জানান।"}
-          </p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-3xl flex flex-col justify-center items-center p-6 text-center text-white shadow-2xl">
+            <div className="w-20 h-20 rounded-full bg-red-600 flex items-center justify-center animate-bounce-slow shadow-xl mb-6 font-sans">
+              <Phone size={24} className="text-white" />
+            </div>
+            <span className="text-[10px] font-mono tracking-widest text-[#ef4444] uppercase">
+              {language === 'en' ? "Establishing Blood Query Line..." : "রক্তদাতার সাথে যোগাযোগ করা হচ্ছে..."}
+            </span>
+            <h3 className="text-3xl font-extrabold tracking-wide mt-2">{dialingPhone}</h3>
+            <p className="text-xs opacity-60 mt-3 max-w-[200px]">
+              {language === 'en' ? "Simulating connection. Be respectful when requesting blood units." : "কলিং সিমুলেটর চলছে। রক্তদানের ব্যাপারে বিনীতভাবে অনুরোধ জানান।"}
+            </p>
 
-          <button
-            onClick={() => setDialingPhone(null)}
-            className="mt-8 px-5 py-2 rounded-full border border-white/20 hover:bg-white/10 text-xs"
-          >
-            {language === 'en' ? "Hang Up" : "ফেলে দিন"}
-          </button>
+            <button
+              onClick={() => setDialingPhone(null)}
+              className="mt-8 px-5 py-2 rounded-full border border-white/20 hover:bg-white/10 text-xs cursor-pointer"
+            >
+              {language === 'en' ? "Hang Up" : "ফেলে দিন"}
+            </button>
+          </div>
         </div>
       )}
     </div>

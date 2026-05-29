@@ -59,7 +59,7 @@ export default function BlogModules({ language, screenId, theme }: BlogModulesPr
     return (
       <div className="space-y-6">
         {/* Hero banner */}
-        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-red-550 to-orange-600 text-white shadow-lg overflow-hidden">
+        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-red-600 to-orange-600 text-white shadow-lg overflow-hidden">
           <div className="absolute right-[-10px] bottom-[-10px] opacity-15 pointer-events-none">
             <Flame size={120} />
           </div>
@@ -189,7 +189,7 @@ export default function BlogModules({ language, screenId, theme }: BlogModulesPr
   const renderMedicalCare = () => {
     return (
       <div className="space-y-5">
-        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-emerald-555 to-teal-700 text-white shadow-lg overflow-hidden font-sans">
+        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 text-white shadow-lg overflow-hidden font-sans">
           <span className="text-[10px] tracking-widest font-mono uppercase bg-white/20 px-2.5 py-0.5 rounded-full font-bold">
             {language === 'en' ? "EMERGENCY MEDICS" : "প্রাথমিক স্বাস্থ্য নির্দেশিকা"}
           </span>
@@ -263,7 +263,7 @@ export default function BlogModules({ language, screenId, theme }: BlogModulesPr
   const renderLegalAssistance = () => {
     return (
       <div className="space-y-5">
-        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-indigo-650 to-blue-750 text-white shadow-lg overflow-hidden">
+        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-indigo-600 to-blue-700 text-white shadow-lg overflow-hidden">
           <span className="text-[10px] tracking-widest font-mono uppercase bg-white/20 px-2.5 py-0.5 rounded-full font-bold">
             {language === 'en' ? "CITATIVE ASSIST" : "আইনি অধিকার সংরক্ষণ"}
           </span>
@@ -290,7 +290,7 @@ export default function BlogModules({ language, screenId, theme }: BlogModulesPr
         {/* Online Fraud and Cyber crime */}
         <div className="grid grid-cols-1 gap-4">
           <div className={`p-4 rounded-xl border space-y-1.5 ${theme === 'dark' ? 'bg-[#0f1b3b] border-slate-800' : 'bg-white border-slate-150'}`}>
-            <h4 className="text-xs font-bold text-red-505 uppercase">💻 {t.cyberCrimeTitle}</h4>
+            <h4 className="text-xs font-bold text-red-500 uppercase">💻 {t.cyberCrimeTitle}</h4>
             <p className="text-xs opacity-75 leading-relaxed">
               {language === 'en'
                 ? "If defamed or threatened on WhatsApp/Facebook, save clear screenshots of target accounts immediately, download links, and submit a secure complaint through official BD Digital Security Cell."
@@ -299,7 +299,7 @@ export default function BlogModules({ language, screenId, theme }: BlogModulesPr
           </div>
 
           <div className={`p-4 rounded-xl border space-y-1.5 ${theme === 'dark' ? 'bg-[#0f1b3b] border-slate-800' : 'bg-white border-slate-150'}`}>
-            <h4 className="text-xs font-bold text-indigo-550 uppercase">🛍️ {t.consumerRights}</h4>
+            <h4 className="text-xs font-bold text-indigo-500 uppercase">🛍️ {t.consumerRights}</h4>
             <p className="text-xs opacity-75 leading-relaxed">
               {language === 'en'
                 ? "Every customer has rights against adulteration, fake weight scaling, and overpricing. Log secure complain details direct with the National Consumer Rights Department."
@@ -314,7 +314,7 @@ export default function BlogModules({ language, screenId, theme }: BlogModulesPr
   const renderDisasterManagement = () => {
     return (
       <div className="space-y-5">
-        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-sky-600 to-cyan-750 text-white shadow-lg overflow-hidden">
+        <div className="relative p-5 rounded-2xl bg-gradient-to-br from-sky-600 to-cyan-700 text-white shadow-lg overflow-hidden">
           <span className="text-[10px] tracking-widest font-mono uppercase bg-white/20 px-2.5 py-0.5 rounded-full font-bold">
             {language === 'en' ? "NATURAL THREAT CONTROL" : "প্রাকৃতিক দুর্যোগ সুরক্ষা"}
           </span>
@@ -330,7 +330,7 @@ export default function BlogModules({ language, screenId, theme }: BlogModulesPr
         <div className={`p-4 rounded-2xl border space-y-3.5 ${
           theme === 'dark' ? 'bg-[#0f1b3b] border-slate-800' : 'bg-amber-50/20 border-amber-100'
         }`}>
-          <h4 className="text-xs font-bold text-amber-550 uppercase flex items-center gap-1.5">
+          <h4 className="text-xs font-bold text-amber-500 uppercase flex items-center gap-1.5">
             🫨 {t.earthquakeTitle}
           </h4>
           <p className="text-xs leading-relaxed font-medium">
@@ -340,7 +340,7 @@ export default function BlogModules({ language, screenId, theme }: BlogModulesPr
             <div className="p-2 border rounded-xl bg-orange-500/10 border-orange-500/30 text-orange-500">
               DROP DOWN
             </div>
-            <div className="p-2 border rounded-xl bg-amber-500/10 border-amber-500/30 text-amber-550">
+            <div className="p-2 border rounded-xl bg-amber-500/10 border-amber-500/30 text-amber-500">
               TAKE COVER
             </div>
             <div className="p-2 border rounded-xl bg-blue-500/10 border-blue-500/30 text-blue-500">

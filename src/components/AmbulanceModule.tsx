@@ -306,7 +306,7 @@ export default function AmbulanceModule({
                 <button
                   type="submit"
                   id="btn-submit-ambulance"
-                  className="px-4 py-1.5 text-[11px] font-bold bg-rose-650 text-white rounded-lg hover:bg-rose-700 transition-colors"
+                  className="px-4 py-1.5 text-[11px] font-bold bg-rose-600 text-white rounded-lg hover:bg-rose-700 transition-colors"
                 >
                   {t.save}
                 </button>
@@ -379,14 +379,14 @@ export default function AmbulanceModule({
       {/* DISPATCH EMERGENCY REGISTRATION MODAL */}
       <AnimatePresence>
         {showRequestModal && (
-          <div id="modal-emergency-dispatch" className="absolute inset-0 bg-black/60 backdrop-blur-xs z-50 rounded-3xl flex items-end justify-center">
+          <div id="modal-emergency-dispatch" className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-end justify-center">
             <motion.form
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 220 }}
               onSubmit={handleDispatchSubmit}
-              className={`w-full max-h-[90%] overflow-y-auto rounded-t-3xl p-5 space-y-4 shadow-2xl ${
+              className={`w-full max-w-lg mx-auto max-h-[90%] overflow-y-auto rounded-t-3xl p-5 space-y-4 shadow-2xl ${
                 theme === 'dark' ? 'bg-[#0f1b3b] text-white' : 'bg-white text-slate-800'
               }`}
             >
@@ -451,7 +451,7 @@ export default function AmbulanceModule({
                     type="text"
                     required
                     value={reqCondition}
-                    placeholder={language === 'en' ? "e.g. Pregnancy pain / Chest distress" : "যেমন: শ্বাসকষ্ট বা গুরুতর সড়ক দুর্ঘটনা"}
+                    placeholder={language === 'en' ? "e.g. Pregnancy pain / Chest distress" : "যেমন: শ্বাসকষ্ট বা গুরুতর সড়ক দুর্ঘটনা"}
                     onChange={(e) => setReqCondition(e.target.value)}
                     className={`w-full text-xs pl-9 pr-3 py-2.5 rounded-xl border outline-none ${
                       theme === 'dark' ? 'bg-[#15234d] border-slate-800' : 'bg-slate-50 border-slate-200'
@@ -463,7 +463,7 @@ export default function AmbulanceModule({
               <button
                 type="submit"
                 id="btn-dispatch-submit"
-                className="w-full py-3 bg-red-650 text-white hover:bg-red-750 text-xs font-extrabold rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full py-3 bg-red-600 text-white hover:bg-red-700 text-xs font-extrabold rounded-xl shadow-lg transition-colors flex items-center justify-center gap-2 font-display uppercase tracking-wider"
               >
                 <Truck size={15} />
                 {t.sendRequest}
@@ -475,24 +475,26 @@ export default function AmbulanceModule({
 
       {/* CALLING OVERLAY DIALER */}
       {dialingPhone && (
-        <div className="absolute inset-0 bg-black/85 backdrop-blur-md z-50 rounded-3xl flex flex-col justify-center items-center p-6 text-center text-white">
-          <div className="w-20 h-20 rounded-full bg-emerald-600 flex items-center justify-center animate-ping-slow shadow-xl mb-6">
-            <Phone size={32} className="text-white" />
-          </div>
-          <span className="text-[10px] font-mono tracking-widest text-emerald-400 uppercase">
-            {language === 'en' ? "Calling Ambulance Driver..." : "চালকের সাথে যোগাযোগ করা হচ্ছে..."}
-          </span>
-          <h3 className="text-3xl font-extrabold tracking-wide mt-2">{dialingPhone}</h3>
-          <p className="text-xs opacity-60 mt-3 max-w-[200px]">
-            {language === 'en' ? "Direct calling system simulator is dialing with full carrier signals..." : "সেবা প্রদানকারী চালকের ফোনে মোবাইল নেটওয়ার্ক লিংক সরাসরি টিউন করা হচ্ছে।"}
-          </p>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="w-full max-w-xs bg-slate-900 border border-slate-800 rounded-3xl flex flex-col justify-center items-center p-6 text-center text-white shadow-2xl">
+            <div className="w-20 h-20 rounded-full bg-emerald-600 flex items-center justify-center animate-ping-slow shadow-xl mb-6">
+              <Phone size={32} className="text-white" />
+            </div>
+            <span className="text-[10px] font-mono tracking-widest text-emerald-400 uppercase">
+              {language === 'en' ? "Calling Ambulance Driver..." : "চালকের সাথে যোগাযোগ করা হচ্ছে..."}
+            </span>
+            <h3 className="text-3xl font-extrabold tracking-wide mt-2">{dialingPhone}</h3>
+            <p className="text-xs opacity-60 mt-3 max-w-[200px]">
+              {language === 'en' ? "Direct calling system simulator is dialing with full carrier signals..." : "সেবা প্রদানকারী চালকের ফোনে মোবাইল নেটওয়ার্ক লিংক সরাসরি টিউন করা হচ্ছে।"}
+            </p>
 
-          <button
-            onClick={() => setDialingPhone(null)}
-            className="mt-8 px-5 py-2.5 rounded-full border border-white/20 hover:bg-white/10 text-xs"
-          >
-            {language === 'en' ? "End Call" : "কল বাতিল"}
-          </button>
+            <button
+              onClick={() => setDialingPhone(null)}
+              className="mt-8 px-5 py-2.5 rounded-full border border-white/20 hover:bg-white/10 text-xs cursor-pointer"
+            >
+              {language === 'en' ? "End Call" : "কল বাতিল"}
+            </button>
+          </div>
         </div>
       )}
     </div>
