@@ -224,6 +224,15 @@ export default function ContactsAndSettings({
           </p>
         </div>
       </div>
+
+      {/* Designer Credit */}
+      <div className={`p-4 rounded-xl border flex flex-col items-center justify-center text-center ${
+        theme === 'dark' ? 'bg-[#0f1b3b]/60 border-slate-850' : 'bg-slate-50 border-slate-200'
+      }`}>
+        <p className={`text-xs font-semibold tracking-wide ${theme === 'dark' ? 'text-slate-300' : 'text-slate-700'}`}>
+          Design by <span className="text-rose-600 font-black">Fire Fighter Imran Hossin Anondo</span>
+        </p>
+      </div>
     </div>
   );
 }

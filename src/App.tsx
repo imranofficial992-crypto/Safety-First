@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
   Menu,
@@ -208,6 +208,107 @@ export default function App() {
   // Dictionary Reference
   const t = language === 'en' ? EN_TRANSLATIONS : BN_TRANSLATIONS;
 
+  // 3b. Interactive Drag Scrollbar Handlers & State
+  const mainRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startY = useRef(0);
+  const startScrollTop = useRef(0);
+
+  const [scrollStats, setScrollStats] = useState({
+    scrollTop: 0,
+    scrollHeight: 0,
+    clientHeight: 0,
+  });
+
+  const handleScroll = () => {
+    if (mainRef.current) {
+      setScrollStats({
+        scrollTop: mainRef.current.scrollTop,
+        scrollHeight: mainRef.current.scrollHeight,
+        clientHeight: mainRef.current.clientHeight,
+      });
+    }
+  };
+
+  // Keep stats updated when key screen or list states change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      handleScroll();
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [currentScreen, currentUser, ambulanceProviders, bloodDonors, emergencyRequests, expenses]);
+
+  // Use ResizeObserver for instant adjustments on resize / rendering shifts
+  useEffect(() => {
+    if (!mainRef.current) return;
+    const observer = new ResizeObserver(() => {
+      handleScroll();
+    });
+    observer.observe(mainRef.current);
+    const child = mainRef.current.firstElementChild;
+    if (child) {
+      observer.observe(child);
+    }
+    return () => observer.disconnect();
+  }, [currentScreen]);
+
+  const handleThumbMouseDown = (e: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    if (!mainRef.current || !trackRef.current) return;
+    isDragging.current = true;
+    
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    startY.current = clientY;
+    startScrollTop.current = mainRef.current.scrollTop;
+    
+    document.body.classList.add('select-none');
+    
+    const handleMouseMove = (moveEvent: MouseEvent | TouchEvent) => {
+      if (!isDragging.current || !mainRef.current || !trackRef.current) return;
+      const currentClientY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : moveEvent.clientY;
+      const deltaY = currentClientY - startY.current;
+      
+      const { scrollHeight, clientHeight } = scrollStats;
+      const trackHeight = trackRef.current.clientHeight;
+      const actualThumbHeight = Math.max(40, (clientHeight / scrollHeight) * trackHeight);
+      
+      const maxScrollTop = scrollHeight - clientHeight;
+      const maxTravel = trackHeight - actualThumbHeight;
+      if (maxTravel <= 0) return;
+      
+      const scrollRatio = maxScrollTop / maxTravel;
+      mainRef.current.scrollTop = startScrollTop.current + deltaY * scrollRatio;
+    };
+    
+    const handleMouseUp = () => {
+      isDragging.current = false;
+      document.body.classList.remove('select-none');
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('touchmove', handleMouseMove);
+      window.removeEventListener('touchend', handleMouseUp);
+    };
+    
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    window.addEventListener('touchmove', handleMouseMove, { passive: false });
+    window.addEventListener('touchend', handleMouseUp);
+  };
+
+  const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isDragging.current || !mainRef.current || !trackRef.current) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('.scrollbar-thumb-draggable')) return;
+    
+    const rect = trackRef.current.getBoundingClientRect();
+    const clickY = e.clientY - rect.top;
+    const { scrollHeight, clientHeight } = scrollStats;
+    const trackHeight = rect.height;
+    
+    const clickFraction = clickY / trackHeight;
+    mainRef.current.scrollTop = clickFraction * scrollHeight - clientHeight / 2;
+  };
+
   // 4. Custom Mutators passed to children
   const handleAddAmbulance = (newProvider: { name: string; mobile: string; address: string; available: boolean }) => {
     const nextItem: AmbulanceProvider = {
@@ -376,91 +477,124 @@ export default function App() {
             </div>
           </header>
 
-          {/* ACTIVE SCREEN CONTENT WORKSPACE (SCROLLABLE CONTAINER) */}
-          <main className="flex-1 overflow-y-auto relative scrollbar-thin overscroll-contain">
-            {!currentUser ? (
-              <AuthScreen
-                language={language}
-                theme={theme}
-                onLoginSuccess={(user) => setCurrentUser({ ...user, loginTime: Date.now() })}
-              />
-            ) : (
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentScreen}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.18, ease: 'easeInOut' }}
-                  className="pb-28" // generous bottom clearance for the WhatsApp and sticky bottom navigation bars!
+          {/* ACTIVE SCREEN CONTENT WORKSPACE (SCROLLABLE CONTAINER WITH DRAGGABLE CUSTOM SCROLLBAR) */}
+          <div className="flex-1 relative min-h-0 overflow-hidden">
+            <main ref={mainRef} onScroll={handleScroll} className="w-full h-full overflow-y-auto relative scrollbar-none overscroll-contain">
+              {!currentUser ? (
+                <AuthScreen
+                  language={language}
+                  theme={theme}
+                  onLoginSuccess={(user) => setCurrentUser({ ...user, loginTime: Date.now() })}
+                />
+              ) : (
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentScreen}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.18, ease: 'easeInOut' }}
+                    className="pb-28" // generous bottom clearance for the WhatsApp and sticky bottom navigation bars!
+                  >
+                  {currentScreen === 'home' && (
+                    <Dashboard
+                      language={language}
+                      setScreen={setCurrentScreen}
+                      onRequestAmbulance={() => {
+                        setCurrentScreen('ambulance');
+                        setShowAmbulanceModal(true);
+                      }}
+                      theme={theme}
+                    />
+                  )}
+
+                  {currentScreen === 'ambulance' && (
+                    <AmbulanceModule
+                      language={language}
+                      providers={ambulanceProviders}
+                      onAddProvider={handleAddAmbulance}
+                      onRequestDispatch={handleAmbulanceDispatch}
+                      showRequestModal={showAmbulanceModal}
+                      setShowRequestModal={setShowAmbulanceModal}
+                      theme={theme}
+                    />
+                  )}
+
+                  {currentScreen === 'blood-donate' && (
+                    <BloodDonateModule
+                      language={language}
+                      donors={bloodDonors}
+                      requests={emergencyRequests}
+                      onAddDonor={handleAddDonor}
+                      onAddRequest={handleAddBloodRequest}
+                      theme={theme}
+                    />
+                  )}
+
+                  {currentScreen === 'expense-tracker' && (
+                    <ExpenseTrackerModule
+                      language={language}
+                      expenses={expenses}
+                      onAddTransaction={handleAddTransaction}
+                      onDeleteTransaction={handleDeleteTransaction}
+                      theme={theme}
+                    />
+                  )}
+
+                  {(currentScreen === 'fire-safety' ||
+                    currentScreen === 'medical-care' ||
+                    currentScreen === 'legal-assistance' ||
+                    currentScreen === 'disaster-management' ||
+                    currentScreen === 'women-child-safety' ||
+                    currentScreen === 'emergency-prep') && (
+                    <BlogModules language={language} screenId={currentScreen} theme={theme} />
+                  )}
+
+                  {(currentScreen === 'contacts' || currentScreen === 'settings') && (
+                    <ContactsAndSettings
+                      language={language}
+                      setLanguage={setLanguage}
+                      theme={theme}
+                      setTheme={setTheme}
+                      screenId={currentScreen}
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            )}
+            </main>
+
+            {/* Draggable Custom Scrollbar Indicator Overlay */}
+            {(() => {
+              const hasScroll = scrollStats.scrollHeight > scrollStats.clientHeight + 4;
+              const thumbHeightPercent = hasScroll 
+                ? Math.max(12, (scrollStats.clientHeight / scrollStats.scrollHeight) * 100)
+                : 0;
+              const maxScrollableAmt = scrollStats.scrollHeight - scrollStats.clientHeight;
+              const thumbTopPercent = (hasScroll && maxScrollableAmt > 0)
+                ? (scrollStats.scrollTop / maxScrollableAmt) * (100 - thumbHeightPercent)
+                : 0;
+
+              return hasScroll && currentUser && (
+                <div
+                  ref={trackRef}
+                  onClick={handleTrackClick}
+                  className="absolute right-1 top-2 bottom-2 w-2.5 z-40 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full flex justify-center cursor-pointer select-none transition-all duration-200"
+                  title="Drag or click to scroll screen"
                 >
-                {currentScreen === 'home' && (
-                  <Dashboard
-                    language={language}
-                    setScreen={setCurrentScreen}
-                    onRequestAmbulance={() => {
-                      setCurrentScreen('ambulance');
-                      setShowAmbulanceModal(true);
+                  <div
+                    onMouseDown={handleThumbMouseDown}
+                    onTouchStart={handleThumbMouseDown}
+                    className="absolute w-2 bg-gradient-to-b from-rose-500 to-rose-600 rounded-full cursor-grab active:cursor-grabbing hover:bg-rose-600 transition-all duration-150 shadow-md shadow-rose-500/25 scrollbar-thumb-draggable"
+                    style={{
+                      height: `${thumbHeightPercent}%`,
+                      top: `${thumbTopPercent}%`,
                     }}
-                    theme={theme}
                   />
-                )}
-
-                {currentScreen === 'ambulance' && (
-                  <AmbulanceModule
-                    language={language}
-                    providers={ambulanceProviders}
-                    onAddProvider={handleAddAmbulance}
-                    onRequestDispatch={handleAmbulanceDispatch}
-                    showRequestModal={showAmbulanceModal}
-                    setShowRequestModal={setShowAmbulanceModal}
-                    theme={theme}
-                  />
-                )}
-
-                {currentScreen === 'blood-donate' && (
-                  <BloodDonateModule
-                    language={language}
-                    donors={bloodDonors}
-                    requests={emergencyRequests}
-                    onAddDonor={handleAddDonor}
-                    onAddRequest={handleAddBloodRequest}
-                    theme={theme}
-                  />
-                )}
-
-                {currentScreen === 'expense-tracker' && (
-                  <ExpenseTrackerModule
-                    language={language}
-                    expenses={expenses}
-                    onAddTransaction={handleAddTransaction}
-                    onDeleteTransaction={handleDeleteTransaction}
-                    theme={theme}
-                  />
-                )}
-
-                {(currentScreen === 'fire-safety' ||
-                  currentScreen === 'medical-care' ||
-                  currentScreen === 'legal-assistance' ||
-                  currentScreen === 'disaster-management' ||
-                  currentScreen === 'women-child-safety' ||
-                  currentScreen === 'emergency-prep') && (
-                  <BlogModules language={language} screenId={currentScreen} theme={theme} />
-                )}
-
-                {(currentScreen === 'contacts' || currentScreen === 'settings') && (
-                  <ContactsAndSettings
-                    language={language}
-                    setLanguage={setLanguage}
-                    theme={theme}
-                    setTheme={setTheme}
-                    screenId={currentScreen}
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
-          )}
-          </main>
+                </div>
+              );
+            })()}
+          </div>
 
           {/* WHATSAPP CONTACT STICKY FOOTER ROW BAR */}
           {currentUser && (
