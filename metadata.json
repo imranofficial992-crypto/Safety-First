@@ -1,0 +1,6 @@
+{
+  "name": "Safety First EN/BN",
+  "description": "A bilingual English and Bangla mobile-first emergency dashboard, blood donation directory, ambulance network, and emergency expense tracker.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
