@@ -8,7 +8,6 @@ import { motion } from 'motion/react';
 import {
   PhoneCall,
   Settings,
-  Shield,
   HelpCircle,
   Globe,
   Sun,
@@ -19,6 +18,7 @@ import {
 } from 'lucide-react';
 import { Language, ScreenId } from '../types';
 import { EN_TRANSLATIONS, BN_TRANSLATIONS } from '../data/translations';
+import FireFighterGuide from './FireFighterGuide';
 
 interface ContactsAndSettingsProps {
   language: Language;
@@ -52,6 +52,12 @@ export default function ContactsAndSettings({
 
   const handleCall = (num: string) => {
     setDialingNumber(num);
+    try {
+      const sanitized = num.replace(/[\s-()]/g, '');
+      window.location.href = `tel:${sanitized}`;
+    } catch (e) {
+      console.warn("Direct native dial failed:", e);
+    }
     setTimeout(() => {
       setDialingNumber(null);
     }, 3800);
@@ -205,7 +211,7 @@ export default function ContactsAndSettings({
             className={`py-2.5 px-3 rounded-xl border flex items-center justify-center gap-2 text-xs transition-colors ${
               theme === 'dark'
                 ? 'bg-rose-600 text-white border-rose-600'
-                : 'bg-transparent border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-slate-650'
+                : 'bg-transparent border-slate-200 dark:border-slate-800 hover:bg-slate-50 text-slate-700'
             }`}
           >
             <Moon size={14} className="text-indigo-400" />
@@ -233,6 +239,8 @@ export default function ContactsAndSettings({
           Design by <span className="text-rose-600 font-black">Fire Fighter Imran Hossin Anondo</span>
         </p>
       </div>
+
+      <FireFighterGuide language={language} theme={theme} />
     </div>
   );
 }

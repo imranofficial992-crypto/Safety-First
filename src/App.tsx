@@ -38,6 +38,7 @@ import BloodDonateModule from './components/BloodDonateModule';
 import ExpenseTrackerModule from './components/ExpenseTrackerModule';
 import ContactsAndSettings from './components/ContactsAndSettings';
 import AuthScreen from './components/AuthScreen';
+import CourseModule from './components/CourseModule';
 
 export default function App() {
   // User Authentication State (24-hour expiration check)
@@ -208,26 +209,35 @@ export default function App() {
   // Dictionary Reference
   const t = language === 'en' ? EN_TRANSLATIONS : BN_TRANSLATIONS;
 
-  // 3b. Interactive Drag Scrollbar Handlers & State
+  // 3b. Interactive Drag Scrollbar Handlers (Direct DOM updates for lag-free performance)
   const mainRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const thumbRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
   const startY = useRef(0);
   const startScrollTop = useRef(0);
 
-  const [scrollStats, setScrollStats] = useState({
-    scrollTop: 0,
-    scrollHeight: 0,
-    clientHeight: 0,
-  });
-
   const handleScroll = () => {
-    if (mainRef.current) {
-      setScrollStats({
-        scrollTop: mainRef.current.scrollTop,
-        scrollHeight: mainRef.current.scrollHeight,
-        clientHeight: mainRef.current.clientHeight,
-      });
+    if (!mainRef.current || !thumbRef.current || !trackRef.current) return;
+    
+    const { scrollTop, scrollHeight, clientHeight } = mainRef.current;
+    const hasScroll = scrollHeight > clientHeight + 4;
+    
+    if (hasScroll) {
+      const trackHeight = trackRef.current.clientHeight || clientHeight - 16;
+      const thumbHeightPercent = Math.max(12, (clientHeight / scrollHeight) * 100);
+      const maxScrollableAmt = scrollHeight - clientHeight;
+      const thumbTopPercent = maxScrollableAmt > 0
+        ? (scrollTop / maxScrollableAmt) * (100 - thumbHeightPercent)
+        : 0;
+        
+      thumbRef.current.style.height = `${thumbHeightPercent}%`;
+      thumbRef.current.style.top = `${thumbTopPercent}%`;
+      trackRef.current.style.opacity = '1';
+      trackRef.current.style.pointerEvents = 'auto';
+    } else {
+      trackRef.current.style.opacity = '0';
+      trackRef.current.style.pointerEvents = 'none';
     }
   };
 
@@ -257,6 +267,10 @@ export default function App() {
     if (!mainRef.current || !trackRef.current) return;
     isDragging.current = true;
     
+    if (e.cancelable) {
+      e.preventDefault();
+    }
+    
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     startY.current = clientY;
     startScrollTop.current = mainRef.current.scrollTop;
@@ -268,9 +282,10 @@ export default function App() {
       const currentClientY = 'touches' in moveEvent ? moveEvent.touches[0].clientY : moveEvent.clientY;
       const deltaY = currentClientY - startY.current;
       
-      const { scrollHeight, clientHeight } = scrollStats;
+      const { scrollHeight, clientHeight } = mainRef.current;
       const trackHeight = trackRef.current.clientHeight;
-      const actualThumbHeight = Math.max(40, (clientHeight / scrollHeight) * trackHeight);
+      const thumbHeightPercent = Math.max(12, (clientHeight / scrollHeight) * 100);
+      const actualThumbHeight = (thumbHeightPercent / 100) * trackHeight;
       
       const maxScrollTop = scrollHeight - clientHeight;
       const maxTravel = trackHeight - actualThumbHeight;
@@ -302,7 +317,7 @@ export default function App() {
     
     const rect = trackRef.current.getBoundingClientRect();
     const clickY = e.clientY - rect.top;
-    const { scrollHeight, clientHeight } = scrollStats;
+    const { scrollHeight, clientHeight } = mainRef.current;
     const trackHeight = rect.height;
     
     const clickFraction = clickY / trackHeight;
@@ -385,6 +400,8 @@ export default function App() {
         return t.navAmbulanceService;
       case 'expense-tracker':
         return t.navExpenseTracker;
+      case 'courses':
+        return language === 'en' ? 'Course Module' : 'কোর্স মডিউল';
       case 'contacts':
         return t.navEmergencyContacts;
       case 'settings':
@@ -550,6 +567,14 @@ export default function App() {
                     <BlogModules language={language} screenId={currentScreen} theme={theme} />
                   )}
 
+                  {currentScreen === 'courses' && (
+                    <CourseModule
+                      language={language}
+                      theme={theme}
+                      onBack={() => setCurrentScreen('home')}
+                    />
+                  )}
+
                   {(currentScreen === 'contacts' || currentScreen === 'settings') && (
                     <ContactsAndSettings
                       language={language}
@@ -565,35 +590,25 @@ export default function App() {
             </main>
 
             {/* Draggable Custom Scrollbar Indicator Overlay */}
-            {(() => {
-              const hasScroll = scrollStats.scrollHeight > scrollStats.clientHeight + 4;
-              const thumbHeightPercent = hasScroll 
-                ? Math.max(12, (scrollStats.clientHeight / scrollStats.scrollHeight) * 100)
-                : 0;
-              const maxScrollableAmt = scrollStats.scrollHeight - scrollStats.clientHeight;
-              const thumbTopPercent = (hasScroll && maxScrollableAmt > 0)
-                ? (scrollStats.scrollTop / maxScrollableAmt) * (100 - thumbHeightPercent)
-                : 0;
-
-              return hasScroll && currentUser && (
+            {currentUser && (
+              <div
+                ref={trackRef}
+                onClick={handleTrackClick}
+                className="absolute right-1 top-2 bottom-2 w-2.5 z-40 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full flex justify-center cursor-pointer select-none opacity-0 pointer-events-none transition-opacity duration-250"
+                title="Drag or click to scroll screen"
+              >
                 <div
-                  ref={trackRef}
-                  onClick={handleTrackClick}
-                  className="absolute right-1 top-2 bottom-2 w-2.5 z-40 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 rounded-full flex justify-center cursor-pointer select-none transition-all duration-200"
-                  title="Drag or click to scroll screen"
-                >
-                  <div
-                    onMouseDown={handleThumbMouseDown}
-                    onTouchStart={handleThumbMouseDown}
-                    className="absolute w-2 bg-gradient-to-b from-rose-500 to-rose-600 rounded-full cursor-grab active:cursor-grabbing hover:bg-rose-600 transition-all duration-150 shadow-md shadow-rose-500/25 scrollbar-thumb-draggable"
-                    style={{
-                      height: `${thumbHeightPercent}%`,
-                      top: `${thumbTopPercent}%`,
-                    }}
-                  />
-                </div>
-              );
-            })()}
+                  ref={thumbRef}
+                  onMouseDown={handleThumbMouseDown}
+                  onTouchStart={handleThumbMouseDown}
+                  className="absolute w-2 bg-gradient-to-b from-rose-500 to-rose-600 rounded-full cursor-grab active:cursor-grabbing hover:bg-rose-600 transition-all duration-150 shadow-md shadow-rose-500/25 scrollbar-thumb-draggable"
+                  style={{
+                    height: '15%',
+                    top: '0%',
+                  }}
+                />
+              </div>
+            )}
           </div>
 
           {/* WHATSAPP CONTACT STICKY FOOTER ROW BAR */}

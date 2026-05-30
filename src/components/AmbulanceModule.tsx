@@ -116,6 +116,12 @@ export default function AmbulanceModule({
 
   const triggerCallSim = (mobile: string) => {
     setDialingPhone(mobile);
+    try {
+      const sanitized = mobile.replace(/[\s-()]/g, '');
+      window.location.href = `tel:${sanitized}`;
+    } catch (e) {
+      console.warn("Direct native dial failed:", e);
+    }
     setTimeout(() => {
       setDialingPhone(null);
     }, 4000);

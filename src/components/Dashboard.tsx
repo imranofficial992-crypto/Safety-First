@@ -22,7 +22,8 @@ import {
   X,
   Activity,
   Clock,
-  Sparkles
+  BookOpen,
+  ChevronRight
 } from 'lucide-react';
 import { Language, ScreenId } from '../types';
 import { EN_TRANSLATIONS, BN_TRANSLATIONS } from '../data/translations';
@@ -46,7 +47,7 @@ export default function Dashboard({
   const categories = [
     {
       id: 'fire-safety' as ScreenId,
-      title: t.navFireSafety,
+      title: language === 'en' ? "Fire Safety" : "অগ্নি নিরাপত্তা",
       desc: language === 'en' ? "10 Home Prevention Tips, LPG and Electric drills" : "বাসাবাড়ি ও সিলিন্ডারের আগুন নিরোধক ১০টি উপায়",
       icon: Flame,
       color: "from-orange-500 to-red-600 animate-pulse-slow",
@@ -54,7 +55,7 @@ export default function Dashboard({
     },
     {
       id: 'medical-care' as ScreenId,
-      title: t.navMedicalCare,
+      title: language === 'en' ? "CPR Guide" : "CPR ও ফার্স্ট এইড",
       desc: language === 'en' ? "CPR guides, First Aid Checklist & Dengue virus tips" : "সিপিআর, ফার্স্ট এইড নির্দেশনা ও ডেঙ্গু জ্বর বিষয়ক সচেতনতা",
       icon: HeartPulse,
       color: "from-teal-500 to-emerald-600",
@@ -62,7 +63,7 @@ export default function Dashboard({
     },
     {
       id: 'legal-assistance' as ScreenId,
-      title: t.navLegalAssistance,
+      title: language === 'en' ? "GD & Legal Info" : "জিডি ও আইনি সহায়তা",
       desc: language === 'en' ? "Cyber crimes help, step-by-step General Diary guidelines" : "থানায় সহজে জিডি করার নিয়ম, আইনি ও সাইবার ক্রাইম পরামর্শ",
       icon: Scale,
       color: "from-blue-500 to-indigo-600",
@@ -70,7 +71,7 @@ export default function Dashboard({
     },
     {
       id: 'disaster-management' as ScreenId,
-      title: t.navDisasterManagement,
+      title: language === 'en' ? "Disaster Survival" : "দুর্যোগে জীবনরক্ষা",
       desc: language === 'en' ? "Earthquakes Drop-Cover-Hold rules, Cyclones & Floods survival" : "ভূমিকম্পে আত্মরক্ষা ও সাইক্লোন সেন্টারের প্রয়োজনীয় প্রস্তুতি",
       icon: ShieldCheck,
       color: "from-cyan-500 to-sky-600",
@@ -78,7 +79,7 @@ export default function Dashboard({
     },
     {
       id: 'women-child-safety' as ScreenId,
-      title: t.navWomenChildSafety,
+      title: language === 'en' ? "Women & Child Support" : "নারী ও শিশু সুরক্ষা",
       desc: language === 'en' ? "Helplines 109 & 1098, rapid security helpline support" : "১০৯ এবং ১০৯৮ জরুরি হটলাইন ও আইনি তথ্য গাইড",
       icon: Users,
       color: "from-pink-500 to-fuchsia-600",
@@ -86,7 +87,7 @@ export default function Dashboard({
     },
     {
       id: 'blood-donate' as ScreenId,
-      title: t.navBloodDonate,
+      title: language === 'en' ? "Blood Directory" : "রক্তদাতার ডিরেক্টরি",
       desc: language === 'en' ? "Search 20 local active blood donors & match districts" : "২০ জন রক্তদাতার ডিরেক্টরি এবং জরুরি রক্তের রিকুয়েস্ট",
       icon: Droplet,
       color: "from-rose-600 to-red-700",
@@ -94,7 +95,7 @@ export default function Dashboard({
     },
     {
       id: 'ambulance' as ScreenId,
-      title: t.navAmbulanceService,
+      title: language === 'en' ? "Ambulance Service" : "অ্যাম্বুলেন্স সার্ভিস",
       desc: language === 'en' ? "List verified clinics, cardiac mobile vans & drivers" : "নিকটবর্তী স্পেশাল অ্যাম্বুলেন্স চালক ও কার্ডিয়াক কেয়ার সাপোর্ট",
       icon: Truck,
       color: "from-amber-500 to-orange-600",
@@ -102,7 +103,7 @@ export default function Dashboard({
     },
     {
       id: 'expense-tracker' as ScreenId,
-      title: t.navExpenseTracker,
+      title: language === 'en' ? "Expense Ledger" : "দৈনিক হিসাব ট্র্যাকার",
       desc: language === 'en' ? "Mini accounting utility. Monitor Emergency balance and budgets" : "জরুরি খরচ ও আয়ের হিসাব ডায়েরি, ব্যালেন্স ক্যালকুলেটর",
       icon: Calculator,
       color: "from-cyan-600 to-teal-700",
@@ -143,7 +144,6 @@ export default function Dashboard({
             </span>
             <h4 className="text-sm font-extrabold text-white tracking-tight mt-1 items-center gap-1.5 leading-tight flex flex-row">
               {language === 'en' ? "CPR Emergency Lifesaver Support" : "জরুরী চিকিৎসা সেবা CPR নির্দেশিকা"}
-              <Sparkles size={13} className="text-yellow-300 fill-yellow-300 shrink-0" />
             </h4>
             <p className="text-[11px] leading-relaxed text-red-50 mt-1 opacity-95">
               {language === 'en' 
@@ -226,7 +226,7 @@ export default function Dashboard({
             <h4 className="text-sm font-bold tracking-tight">
               {t.ambulanceCardTitle}
             </h4>
-            <p className="text-[11px] opacity-70 leading-relaxed pr-2">
+            <p className="text-[11px] opacity-70 leading-relaxed">
               {t.ambulanceCardDesc}
             </p>
           </div>
@@ -276,22 +276,26 @@ export default function Dashboard({
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setScreen(cat.id)}
                 id={`category-card-${cat.id}`}
-                className={`relative overflow-hidden p-3.5 flex flex-col justify-between h-[126px] text-left rounded-2xl border transition-all ${
+                className={`relative overflow-hidden p-3 flex flex-col justify-between min-h-[115px] sm:min-h-[120px] text-left rounded-2xl border transition-all ${
                   theme === 'dark' 
-                    ? 'bg-[#0f1b3b] hover:bg-[#15234d] border-slate-800' 
+                    ? 'bg-[#0f1b3b] hover:bg-[#15234d] border-slate-800 shadow-md' 
                     : 'bg-white hover:bg-slate-50 border-slate-100 shadow-sm'
                 }`}
               >
-                <div className="flex justify-between items-start">
-                  <div className={`p-2.5 rounded-xl bg-gradient-to-br ${cat.color} text-white shadow-md`}>
+                <div className="flex items-center gap-2.5 w-full">
+                  <div className={`p-2 rounded-xl bg-gradient-to-br ${cat.color} text-white shadow-md shrink-0`}>
                     <CatIcon size={16} />
                   </div>
-                </div>
-                <div className="mt-auto space-y-0.5">
-                  <h4 className="text-xs font-bold leading-tight tracking-tight text-slate-900 dark:text-white/95">
+                  <h4 className={`text-[12px] font-extrabold leading-tight tracking-tight ${
+                    theme === 'dark' ? 'text-white' : 'text-slate-900'
+                  }`}>
                     {cat.title}
                   </h4>
-                  <p className="text-[9px] line-clamp-2 text-slate-500 dark:text-slate-400 leading-tight">
+                </div>
+                <div className="mt-2.5">
+                  <p className={`text-[9.5px] line-clamp-2 leading-tight ${
+                    theme === 'dark' ? 'text-slate-400' : 'text-slate-500'
+                  }`}>
                     {cat.desc}
                   </p>
                 </div>
@@ -300,6 +304,41 @@ export default function Dashboard({
           })}
         </div>
       </div>
+
+      {/* COURSE MODULE STANDALONE CARD BELOW GRID OPTIONS */}
+      <motion.div
+        whileHover={{ scale: 1.015, y: -2 }}
+        whileTap={{ scale: 0.985 }}
+        onClick={() => setScreen('courses')}
+        id="courses-banner-card"
+        className="bg-gradient-to-r from-violet-600 to-indigo-600 text-white rounded-2xl p-4 flex items-center justify-between gap-3 cursor-pointer shadow-lg shadow-indigo-650/15 hover:shadow-indigo-650/25 border border-indigo-500/30 transition-all group text-left"
+      >
+        <div className="flex items-start gap-3.5">
+          <div className="p-3 rounded-xl bg-white/15 text-white relative shadow-inner shrink-0 leading-none">
+            <BookOpen size={20} className="text-white" />
+            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75 font-sans"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-450 font-sans"></span>
+            </span>
+          </div>
+          <div className="text-left leading-tight">
+            <span className="text-[9px] font-extrabold tracking-wider bg-white/20 text-white px-2 py-0.5 rounded-md uppercase font-mono">
+              {language === 'en' ? "CAREER & IT SKILLS" : "ক্যারিয়ার ও ফ্রিল্যান্সিং ল্যাব"}
+            </span>
+            <h4 className="text-sm font-extrabold text-white tracking-tight mt-1 leading-tight flex items-center gap-1.5">
+              {language === 'en' ? "Course Module (IT Training)" : "আইটি ক্যারিয়ার কোর্স মডিউল"}
+            </h4>
+            <p className="text-[11px] leading-normal text-indigo-50 mt-1 opacity-90 max-w-[280px] sm:max-w-none">
+              {language === 'en' 
+                ? "See details on our professional React, Flutter, UI/UX, and Digital Marketing courses. Earn BDT 15,000-50,000+ monthly!"
+                : "রিয়্যাক্ট, ফ্লাটার, ইউআই/ইউএক্স ও ডিজিটাল মার্কেটিং কোর্সের বিবরণ, আয়ের পরিমাণ ও ইনকামের সুনির্দিষ্ট গাইডলাইন দেখুন।"}
+            </p>
+          </div>
+        </div>
+        <div className="h-8 w-8 rounded-full bg-white/10 text-white flex items-center justify-center shrink-0 group-hover:bg-white/20 transition-all">
+          <ChevronRight size={14} />
+        </div>
+      </motion.div>
 
       {/* CALLING SIMULATOR MODAL OVERLAY */}
       {dialingNumber && (

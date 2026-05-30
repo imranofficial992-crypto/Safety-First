@@ -140,6 +140,12 @@ export default function BloodDonateModule({
 
   const triggerCallSim = (num: string) => {
     setDialingPhone(num);
+    try {
+      const sanitized = num.replace(/[\s-()]/g, '');
+      window.location.href = `tel:${sanitized}`;
+    } catch (e) {
+      console.warn("Direct native dial failed:", e);
+    }
     setTimeout(() => {
       setDialingPhone(null);
     }, 3800);

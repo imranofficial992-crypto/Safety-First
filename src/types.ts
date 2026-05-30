@@ -16,6 +16,7 @@ export type ScreenId =
   | 'expense-tracker'
   | 'women-child-safety'
   | 'emergency-prep'
+  | 'courses'
   | 'contacts'
   | 'settings';
 

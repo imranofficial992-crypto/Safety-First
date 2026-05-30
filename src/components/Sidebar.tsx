@@ -20,7 +20,8 @@ import {
   Settings,
   PhoneCall,
   Globe,
-  LogOut
+  LogOut,
+  BookOpen
 } from 'lucide-react';
 import { Language, ScreenId } from '../types';
 import { EN_TRANSLATIONS, BN_TRANSLATIONS } from '../data/translations';
@@ -60,6 +61,7 @@ export default function Sidebar({
     { id: 'women-child-safety' as ScreenId, label: t.navWomenChildSafety, icon: Users },
     { id: 'ambulance' as ScreenId, label: t.navAmbulanceService, icon: Truck },
     { id: 'expense-tracker' as ScreenId, label: t.navExpenseTracker, icon: Calculator },
+    { id: 'courses' as ScreenId, label: language === 'en' ? 'Course Module' : 'কোর্স মডিউল', icon: BookOpen },
     { id: 'contacts' as ScreenId, label: t.navEmergencyContacts, icon: PhoneCall },
     { id: 'settings' as ScreenId, label: t.navSettings, icon: Settings },
   ];
